@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Your Claude - Zen Metrics</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Wave Background -->
+    <svg class="wave-bg" viewBox="0 0 1200 300" preserveAspectRatio="none">
+        <defs>
+            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#E8EDDF;stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:#F7F4ED;stop-opacity:0" />
+            </linearGradient>
+        </defs>
+        <path d="M0,150 Q300,50 600,150 T1200,150 L1200,300 L0,300 Z" fill="url(#waveGradient)"/>
+        <path d="M0,200 Q300,100 600,200 T1200,200 L1200,300 L0,300 Z" fill="url(#waveGradient)" opacity="0.5"/>
+    </svg>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <!-- Logo -->
+            <img src="logo.png" alt="Watch Your Claude - AI Metrics Dashboard" class="logo">
+        </header>
+
+        <!-- Session Selector -->
+        <div class="session-selector">
+            <!-- Active Sessions Counter -->
+            <div class="session-counter">
+                <div class="session-pulse"></div>
+                <span class="session-count" id="header-session-value">0</span>
+                <span class="session-label">Active Sessions</span>
+            </div>
+            
+            <div class="session-controls">
+                <label for="session-dropdown">Session:</label>
+                <select id="session-dropdown" class="session-dropdown">
+                    <option value="all">All Sessions</option>
+                </select>
+                <button id="refresh-sessions" class="refresh-btn" title="Refresh sessions" aria-label="Refresh session list">↻</button>
+            </div>
+        </div>
+
+        <!-- Live Metrics Section -->
+        <div class="live-section">
+            <div class="section-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="3" fill="#DB4D6D" class="live-dot">
+                        <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="12" cy="12" r="6" fill="none" stroke="#DB4D6D" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="#DB4D6D" stroke-width="1" opacity="0.3"/>
+                </svg>
+                <h2 class="section-title">Live Metrics</h2>
+                <div class="live-indicator">
+                    <span class="live-status">● Live</span>
+                    <span class="last-update" id="last-update">Updated just now</span>
+                </div>
+            </div>
+        
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <!-- Cost Metric -->
+            <div class="metric-card" id="cost-card">
+                <!-- Cherry Blossom Decoration -->
+                <svg class="card-decoration" viewBox="0 0 50 50">
+                    <g opacity="0.3">
+                        <circle cx="15" cy="15" r="5" fill="#FEDFE1"/>
+                        <circle cx="10" cy="20" r="5" fill="#FEDFE1"/>
+                        <circle cx="20" cy="20" r="5" fill="#FEDFE1"/>
+                        <circle cx="15" cy="25" r="5" fill="#FEDFE1"/>
+                        <circle cx="5" cy="15" r="5" fill="#FEDFE1"/>
+                        <circle cx="15" cy="18" r="3" fill="#DB4D6D"/>
+                    </g>
+                </svg>
+                
+                <div class="metric-header">
+                    <div>
+                        <h3 class="metric-title">Cost Usage</h3>
+                        <span class="metric-subtitle">Daily</span>
+                    </div>
+                    <svg class="metric-icon" viewBox="0 0 40 40">
+                        <circle cx="20" cy="20" r="18" fill="none" stroke="#F5CB5C" stroke-width="2"/>
+                        <text x="20" y="26" text-anchor="middle" font-size="18" fill="#F5CB5C">$</text>
+                    </svg>
+                </div>
+                <div class="metric-value">
+                    <span class="value" id="cost-value">$0.00</span>
+                    <span class="trend" id="cost-trend"></span>
+                </div>
+                <div class="metric-stats">
+                    <span class="stat-item">Total: <span id="cost-total">$0.00</span></span>
+                    <span class="stat-item">Avg: <span id="cost-avg">$0.00</span></span>
+                </div>
+                <div class="metric-visual">
+                    <canvas id="cost-chart" class="mini-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Token Metric -->
+            <div class="metric-card" id="token-card">
+                <div class="metric-header">
+                    <div>
+                        <h3 class="metric-title">
+                            Token Usage
+                            <button class="detail-icon-btn" id="token-detail-btn" title="View details" aria-label="View token usage details">
+                                <!-- <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
+                                </svg> -->
+                            </button>
+                        </h3>
+                        <span class="metric-subtitle">Total</span>
+                    </div>
+                    <svg class="metric-icon" viewBox="0 0 40 40">
+                        <rect x="5" y="5" width="30" height="30" rx="6" fill="none" stroke="#8A9A5B" stroke-width="2"/>
+                        <circle cx="20" cy="20" r="8" fill="#8A9A5B" opacity="0.3"/>
+                        <circle cx="20" cy="20" r="4" fill="#8A9A5B"/>
+                    </svg>
+                </div>
+                <div class="metric-value">
+                    <span class="value" id="token-value">0</span>
+                    <span class="trend" id="token-trend"></span>
+                </div>
+                <div class="metric-stats">
+                    <span class="stat-item">Total: <span id="token-total">0</span></span>
+                    <span class="stat-item">Avg: <span id="token-avg">0</span></span>
+                </div>
+                <div class="metric-visual">
+                    <canvas id="token-chart" class="mini-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Lines of Code -->
+            <div class="metric-card" id="lines-card">
+                <div class="metric-header">
+                    <div>
+                        <h3 class="metric-title">Lines Modified</h3>
+                        <span class="metric-subtitle">Today</span>
+                    </div>
+                    <svg class="metric-icon" viewBox="0 0 40 40">
+                        <line x1="8" y1="10" x2="32" y2="10" stroke="#2B4162" stroke-width="2"/>
+                        <line x1="8" y1="20" x2="28" y2="20" stroke="#385F71" stroke-width="2"/>
+                        <line x1="8" y1="30" x2="24" y2="30" stroke="#385F71" stroke-width="2" opacity="0.5"/>
+                    </svg>
+                </div>
+                <div class="metric-value">
+                    <span class="value" id="lines-value">0</span>
+                    <span class="trend" id="lines-trend"></span>
+                </div>
+                <div class="metric-stats">
+                    <span class="stat-item lines-added">+<span id="lines-added">0</span> added</span>
+                    <span class="stat-item lines-removed">-<span id="lines-removed">0</span> removed</span>
+                </div>
+                <div class="metric-visual">
+                    <canvas id="lines-chart" class="mini-chart"></canvas>
+                </div>
+            </div>
+        </div>  <!-- End of metrics-grid -->
+        </div>  <!-- End of live-section -->
+
+        <!-- Trends Section -->
+        <div class="live-section">
+            <div class="section-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 13H5C5 11.34 6.34 10 8 10S11 11.34 11 13H13C13 10.24 10.76 8 8 8S3 10.24 3 13ZM11 13H13C13 14.66 14.34 16 16 16S19 14.66 19 13H21C21 15.76 18.76 18 16 18S11 15.76 11 13Z" fill="#385F71" opacity="0.7"/>
+                    <path d="M3 3V21H21" stroke="#2B4162" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h2 class="section-title">Trends</h2>
+                <div class="time-selector">
+                    <button class="time-btn active" data-period="daily">Daily</button>
+                    <button class="time-btn" data-period="weekly">Weekly</button>
+                    <button class="time-btn" data-period="monthly">Monthly</button>
+                </div>
+            </div>
+            
+            <!-- Trends Metrics Grid -->
+            <div class="metrics-grid">
+                <!-- Trend Cost Metric -->
+                <div class="metric-card" id="trend-cost-card">
+                    <!-- Cherry Blossom Decoration -->
+                    <svg class="card-decoration" viewBox="0 0 50 50">
+                        <g opacity="0.3">
+                            <circle cx="15" cy="15" r="5" fill="#FEDFE1"/>
+                            <circle cx="10" cy="20" r="5" fill="#FEDFE1"/>
+                            <circle cx="20" cy="20" r="5" fill="#FEDFE1"/>
+                            <circle cx="15" cy="25" r="5" fill="#FEDFE1"/>
+                            <circle cx="5" cy="15" r="5" fill="#FEDFE1"/>
+                            <circle cx="15" cy="18" r="3" fill="#DB4D6D"/>
+                        </g>
+                    </svg>
+                    
+                    <div class="metric-header">
+                        <div>
+                            <h3 class="metric-title">Cost Usage</h3>
+                            <span class="metric-subtitle" id="trend-cost-subtitle">Daily</span>
+                        </div>
+                        <svg class="metric-icon" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="18" fill="none" stroke="#F5CB5C" stroke-width="2"/>
+                            <text x="20" y="26" text-anchor="middle" font-size="18" fill="#F5CB5C">$</text>
+                        </svg>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value" id="trend-cost-value">$0.00</span>
+                        <span class="trend" id="trend-cost-trend"></span>
+                    </div>
+                    <div class="metric-stats">
+                        <span class="stat-item">Period Total: <span id="trend-cost-total">$0.00</span></span>
+                        <span class="stat-item">Avg: <span id="trend-cost-avg">$0.00</span></span>
+                    </div>
+                </div>
+
+                <!-- Trend Token Metric -->
+                <div class="metric-card" id="trend-token-card">
+                    <div class="metric-header">
+                        <div>
+                            <h3 class="metric-title">
+                                Token Usage
+                                <button class="detail-icon-btn" id="trend-token-detail-btn" title="View details" aria-label="View historical token usage details">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
+                                    </svg>
+                                </button>
+                            </h3>
+                            <span class="metric-subtitle" id="trend-token-subtitle">Daily</span>
+                        </div>
+                        <svg class="metric-icon" viewBox="0 0 40 40">
+                            <rect x="5" y="5" width="30" height="30" rx="6" fill="none" stroke="#8A9A5B" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="8" fill="#8A9A5B" opacity="0.3"/>
+                            <circle cx="20" cy="20" r="4" fill="#8A9A5B"/>
+                        </svg>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value" id="trend-token-value">0</span>
+                        <span class="trend" id="trend-token-trend"></span>
+                    </div>
+                    <div class="metric-stats">
+                        <span class="stat-item">Period Total: <span id="trend-token-total">0</span></span>
+                        <span class="stat-item">Avg: <span id="trend-token-avg">0</span></span>
+                    </div>
+                </div>
+
+                <!-- Trend Lines of Code -->
+                <div class="metric-card" id="trend-lines-card">
+                    <div class="metric-header">
+                        <div>
+                            <h3 class="metric-title">Lines Modified</h3>
+                            <span class="metric-subtitle" id="trend-lines-subtitle">Daily</span>
+                        </div>
+                        <svg class="metric-icon" viewBox="0 0 40 40">
+                            <line x1="8" y1="10" x2="32" y2="10" stroke="#2B4162" stroke-width="2"/>
+                            <line x1="8" y1="20" x2="28" y2="20" stroke="#385F71" stroke-width="2"/>
+                            <line x1="8" y1="30" x2="24" y2="30" stroke="#385F71" stroke-width="2" opacity="0.5"/>
+                        </svg>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value" id="trend-lines-value">0</span>
+                        <span class="trend" id="trend-lines-trend"></span>
+                    </div>
+                    <div class="metric-stats">
+                        <span class="stat-item">Period Total: <span id="trend-lines-total">0</span></span>
+                        <span class="stat-item">Avg: <span id="trend-lines-avg">0</span></span>
+                    </div>
+                    <div class="metric-stats">
+                        <span class="stat-item lines-added">+<span id="trend-lines-added">0</span> added</span>
+                        <span class="stat-item lines-removed">-<span id="trend-lines-removed">0</span> removed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="activity-section">
+            <div class="section-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 3C13 2.45 12.55 2 12 2S11 2.45 11 3V8C11 8.55 11.45 9 12 9S13 8.55 13 8V3ZM17.66 7.34L19.07 5.93C19.46 5.54 19.46 4.91 19.07 4.52S18.05 4.13 17.66 4.52L16.25 5.93C16.87 6.36 17.43 6.87 17.93 7.43L17.66 7.34ZM21 11H16C15.45 11 15 11.45 15 12S15.45 13 16 13H21C21.55 13 22 12.55 22 12S21.55 11 21 11ZM7.76 5.93L6.34 4.52C5.95 4.13 5.32 4.13 4.93 4.52S4.54 5.54 4.93 5.93L6.34 7.34C6.87 6.87 7.43 6.36 8.05 5.93H7.76ZM3 11C2.45 11 2 11.45 2 12S2.45 13 3 13H8C8.55 13 9 12.55 9 12S8.55 11 8 11H3ZM12 15C10.34 15 9 16.34 9 18S10.34 21 12 21 15 19.66 15 18 13.66 15 12 15Z" 
+                          fill="#385F71" opacity="0.5"/>
+                </svg>
+                <h2 class="section-title">Recent Activities</h2>
+                <button class="toggle-activities" id="toggle-activities" aria-expanded="false" aria-controls="activities-container">
+                    <span class="toggle-text">Show</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="toggle-icon" aria-hidden="true">
+                        <path d="M7 10L12 15L17 10" stroke="#2B4162" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="activities-container" id="activities-container" style="display: none;">
+                <div class="empty-state">No recent activities</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <!-- Action Buttons -->
+            <div class="footer-actions">
+                <button class="action-card configure-btn" id="configure-button" aria-label="Configure Claude Code">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
+                    </svg>
+                    <span>Configure</span>
+                </button>
+                
+                <a href="https://coff.ee/nickguy" target="_blank" class="action-card coffee-card">
+                    <span class="icon">☕</span>
+                    <span>Buy me a coffee</span>
+                </a>
+                
+                <a href="https://gehirn.ai" target="_blank" class="action-card wip-card">
+                    <span class="icon">🚧</span>
+                    <span>More stuff WIP</span>
+                </a>
+            </div>
+            
+            <div class="status">
+                <span class="status-indicator" id="connection-status"></span>
+                <span class="status-text" id="connection-text">Connecting...</span>
+            </div>
+        </footer>
+
+        <!-- Setup Modal -->
+        <div class="modal" id="setup-modal" role="dialog" aria-labelledby="setup-modal-title" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="setup-modal-title">Configure</h2>
+                    <button class="modal-close" id="modal-close" aria-label="Close setup modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="setup-intro">Configure Claude Code to send metrics to your dashboard:</p>
+                    
+                    <div class="config-container">
+                        <pre class="config-block" id="config-block">{
+  "model": "opus",
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:2025",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/json",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_METRIC_EXPORT_INTERVAL": "3000",
+    "OTEL_LOGS_EXPORT_INTERVAL": "3000",
+    "OTEL_LOG_USER_PROMPTS": "1",
+    "OTEL_METRICS_INCLUDE_ACCOUNT_UUID": "false"
+  }
+}</pre>
+                        <div class="config-actions">
+                            <button class="action-button" id="copy-json-button">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span>Copy JSON</span>
+                            </button>
+                            <button class="action-button" id="download-json-button">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span>Download</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="setup-steps">
+                        <h3>Setup Instructions:</h3>
+                        <ol>
+                            <li>Copy or download the JSON configuration above</li>
+                            <li>Save it as <code>settings.json</code> in your Claude Code settings directory</li>
+                            <li>Restart Claude Code for changes to take effect</li>
+                            <li>Metrics will start flowing to your dashboard automatically</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Token Details Modal -->
+        <div class="modal" id="token-modal" role="dialog" aria-labelledby="token-modal-title" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="token-modal-title">Token Usage Details</h2>
+                    <button class="modal-close" id="token-modal-close" aria-label="Close token details modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="token-details-container">
+                        <h3>Token Usage by Type</h3>
+                        <div class="token-types-grid" id="token-types-grid">
+                            <!-- Token type cards will be dynamically added here -->
+                        </div>
+                        <div class="token-chart-container">
+                            <canvas id="token-type-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Token Details Modal -->
+        <div class="modal" id="trend-token-modal" role="dialog" aria-labelledby="trend-token-modal-title" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="trend-token-modal-title">Historical Token Usage Details</h2>
+                    <button class="modal-close" id="trend-token-modal-close" aria-label="Close historical token details modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="token-details-container">
+                        <h3 id="trend-token-period-title">Token Usage by Type</h3>
+                        <div class="token-types-grid" id="trend-token-types-grid">
+                            <!-- Token type cards will be dynamically added here -->
+                        </div>
+                        <div class="token-chart-container">
+                            <canvas id="trend-token-type-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
