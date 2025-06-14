@@ -102,6 +102,28 @@ Open http://localhost:2025 in your browser
 - **Supabase Integration**: Historical data storage and trend analysis
 - **Token Details Modal**: View token usage breakdown by type
 
+## Screenshots
+
+### Dashboard Home
+![Dashboard Home](demo/panel.png)
+*Main dashboard showing live metrics, cost usage, token consumption, and lines modified with real-time updates*
+
+### Configuration
+![Configuration](demo/config.png)
+*Easy setup dialog with copy-paste JSON configuration for Claude Code settings*
+
+### Incoming Metrics
+![Incoming Metrics](demo/metrics.png)
+*Real-time view of incoming OTLP metrics as they arrive from Claude Code*
+
+### Token Usage Breakdown
+![Token Usage Breakdown](demo/token_type_breakdown.png)
+*Detailed breakdown of token usage by type (input, output, cacheRead, cacheCreation) with visual chart*
+
+### Session History
+![Session History](demo/Sessions.png)
+*Browse and filter through all previous Claude Code sessions with session selector*
+
 ## API Endpoints
 
 - `POST /v1/metrics` - OTLP metrics ingestion
