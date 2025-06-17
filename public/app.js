@@ -275,7 +275,10 @@ async function loadHistoricalData(period) {
     setLoading('trend-token-card', true);
     setLoading('trend-lines-card', true);
     
-    const response = await fetch(`/api/metrics/historical?period=${period}`);
+    // Get user's timezone offset in minutes
+    const timezoneOffset = new Date().getTimezoneOffset();
+    
+    const response = await fetch(`/api/metrics/historical?period=${period}&timezoneOffset=${timezoneOffset}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch historical data: ${response.statusText}`);
@@ -852,7 +855,8 @@ function initializeTrendTokenModal() {
     
     // Fetch historical token details
     try {
-      const response = await fetch(`/api/metrics/historical-token-details?period=${currentPeriod}`);
+      const timezoneOffset = new Date().getTimezoneOffset();
+      const response = await fetch(`/api/metrics/historical-token-details?period=${currentPeriod}&timezoneOffset=${timezoneOffset}`);
       const data = await response.json();
       
       // Clear existing content

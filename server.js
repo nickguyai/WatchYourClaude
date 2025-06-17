@@ -642,17 +642,18 @@ app.get('/api/metrics/recent-chart-data', async (req, res) => {
 // API endpoint to get historical metrics from Supabase
 app.get('/api/metrics/historical', async (req, res) => {
   try {
-    const { period = 'daily', days = 30 } = req.query;
+    const { period = 'daily', days = 30, timezoneOffset = 0 } = req.query;
     
     if (period === 'daily') {
-      // Use the daily_summary view for pre-aggregated data
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
+      // Get today's date in the user's timezone
+      const now = new Date();
+      const userLocalTime = new Date(now.getTime() - (timezoneOffset * 60 * 1000));
+      const today = userLocalTime.toISOString().split('T')[0];
       
       const { data, error } = await supabase
         .from('daily_summary')
         .select('date, total_cost, total_tokens, total_lines_of_code, total_lines_added, total_lines_removed')
-        .gte('date', startDate.toISOString().split('T')[0])
+        .eq('date', today)
         .order('date', { ascending: true });
       
       if (error) throw error;
@@ -879,7 +880,7 @@ app.get('/api/metrics/token-details', async (req, res) => {
 // API endpoint to get historical token details by type
 app.get('/api/metrics/historical-token-details', async (req, res) => {
   try {
-    const { period = 'daily' } = req.query;
+    const { period = 'daily', timezoneOffset = 0 } = req.query;
     const tokenTypes = {
       input: 0,
       output: 0,
@@ -887,31 +888,38 @@ app.get('/api/metrics/historical-token-details', async (req, res) => {
       cacheCreation: 0
     };
     
-    // Calculate date range based on period
-    const endDate = new Date();
+    // Calculate date range based on period in user's timezone
+    const now = new Date();
+    const userLocalTime = new Date(now.getTime() - (timezoneOffset * 60 * 1000));
+    
+    const endDate = new Date(userLocalTime);
     endDate.setHours(23, 59, 59, 999);
-    const startDate = new Date();
+    const startDate = new Date(userLocalTime);
     
     if (period === 'daily') {
-      // Get today's data
+      // Get today's data in user's timezone
       startDate.setHours(0, 0, 0, 0);
     } else if (period === 'weekly') {
-      // Get current week (Sunday to today)
+      // Get current week (Sunday to today) in user's timezone
       const dayOfWeek = startDate.getDay();
       startDate.setDate(startDate.getDate() - dayOfWeek);
       startDate.setHours(0, 0, 0, 0);
     } else {
-      // Get current month
+      // Get current month in user's timezone
       startDate.setDate(1);
       startDate.setHours(0, 0, 0, 0);
     }
+    
+    // Adjust dates back to UTC for database query
+    const startDateUTC = new Date(startDate.getTime() + (timezoneOffset * 60 * 1000));
+    const endDateUTC = new Date(endDate.getTime() + (timezoneOffset * 60 * 1000));
     
     // Fetch data from daily_summary view
     const { data, error } = await supabase
       .from('daily_summary')
       .select('total_tokens_input, total_tokens_output, total_tokens_cache_read, total_tokens_cache_creation')
-      .gte('date', startDate.toISOString().split('T')[0])
-      .lte('date', endDate.toISOString().split('T')[0]);
+      .gte('date', startDateUTC.toISOString().split('T')[0])
+      .lte('date', endDateUTC.toISOString().split('T')[0]);
     
     if (error) throw error;
     
